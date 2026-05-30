@@ -8,20 +8,19 @@ use crate::{
 };
 use color_eyre::eyre::Result;
 use dialoguer::{MultiSelect, theme::ColorfulTheme};
-use fast_down::file::MmapFilePusher;
+use fast_down::file::{CacheFilePusher, MmapFilePusher};
 use fast_down::{
     BoxPusher, Event, Merge, ProgressEntry, Proxy, Total,
     fast_puller::{FastDownPuller, FastDownPullerOptions, build_client},
-    file::FilePusher,
     getifaddrs::get_available_local_ips,
     http::Prefetch,
     invert,
     multi::{self, download_multi},
     single::{self, download_single},
-    unique_path::gen_unique_path,
 };
 use file_alloc::FileAlloc;
 use parking_lot::Mutex;
+use path_helper::tokio::gen_unique_path;
 use reqwest::header;
 use std::{
     net::IpAddr,
@@ -254,9 +253,19 @@ pub async fn download(mut args: DownloadArgs) -> Result<()> {
         && cfg!(target_pointer_width = "64")
         && matches!(args.write_method, WriteMethod::Mmap)
     {
-        BoxPusher::new(MmapFilePusher::new(file, info.size).await?)
+        BoxPusher::new(MmapFilePusher::new(file, info.size, false).await?)
     } else {
-        BoxPusher::new(FilePusher::new(file, info.size, args.write_buffer_size).await?)
+        BoxPusher::new(
+            CacheFilePusher::new(
+                file,
+                info.size,
+                false,
+                args.write_buffer_size * 8,
+                args.write_buffer_size / 4,
+                args.write_buffer_size,
+            )
+            .await?,
+        )
     };
     let result = if info.fast_download {
         download_multi(
