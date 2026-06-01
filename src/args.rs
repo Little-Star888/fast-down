@@ -118,6 +118,9 @@ struct DownloadCli {
     /// 是否启用文件预分配
     #[arg(long)]
     pre_alloc: bool,
+    /// 最大重定向次数
+    #[arg(long, default_value_t = 20)]
+    max_redirects: usize,
 }
 
 #[derive(clap::Args, Debug)]
@@ -163,6 +166,7 @@ pub struct DownloadArgs {
     pub max_speculative: usize,
     pub write_method: WriteMethod,
     pub pre_alloc: bool,
+    pub max_redirects: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -212,6 +216,7 @@ impl Args {
                         max_speculative: cli.max_speculative,
                         write_method: cli.write_method,
                         pre_alloc: cli.pre_alloc,
+                        max_redirects: cli.max_redirects,
                     };
                     for header in cli.headers {
                         let mut parts = header.splitn(2, ':').map(|t| t.trim());

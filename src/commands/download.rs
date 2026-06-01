@@ -58,11 +58,12 @@ pub async fn download(mut args: DownloadArgs) -> Result<()> {
         None => Proxy::System,
     };
     let client = build_client(
-        &args.headers,
+        args.headers.clone(),
         proxy,
         args.accept_invalid_certs,
         args.accept_invalid_hostnames,
         None,
+        args.max_redirects,
     )?;
     let store = Store::new().await?;
     let (info, resp) = loop {
@@ -74,6 +75,9 @@ pub async fn download(mut args: DownloadArgs) -> Result<()> {
             }
         }
     };
+    if args.verbose {
+        dbg!(&info, &resp);
+    }
     let threads = if info.fast_download {
         args.threads.max(1)
     } else {
@@ -230,6 +234,7 @@ pub async fn download(mut args: DownloadArgs) -> Result<()> {
         file_id: info.file_id.clone(),
         resp: Some(Arc::new(Mutex::new(Some(resp)))),
         available_ips,
+        max_redirects: args.max_redirects,
     })?;
     if let Some(parent) = save_path.parent()
         && let Err(err) = fs::create_dir_all(parent).await
