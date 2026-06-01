@@ -121,6 +121,9 @@ struct DownloadCli {
     /// 最大重定向次数
     #[arg(long, default_value_t = 20)]
     max_redirects: usize,
+    /// 启用 Cookie store，自动保存服务器返回的 Set-Cookie 并在后续请求中携带
+    #[arg(long)]
+    cookie_store: bool,
 }
 
 #[derive(clap::Args, Debug)]
@@ -167,6 +170,7 @@ pub struct DownloadArgs {
     pub write_method: WriteMethod,
     pub pre_alloc: bool,
     pub max_redirects: usize,
+    pub cookie_store: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -217,6 +221,7 @@ impl Args {
                         write_method: cli.write_method,
                         pre_alloc: cli.pre_alloc,
                         max_redirects: cli.max_redirects,
+                        cookie_store: cli.cookie_store,
                     };
                     for header in cli.headers {
                         let mut parts = header.splitn(2, ':').map(|t| t.trim());

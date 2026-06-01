@@ -62,6 +62,7 @@ pub async fn download(mut args: DownloadArgs) -> Result<()> {
         proxy,
         args.accept_invalid_certs,
         args.accept_invalid_hostnames,
+        args.cookie_store,
         None,
         args.max_redirects,
     )?;
@@ -231,6 +232,7 @@ pub async fn download(mut args: DownloadArgs) -> Result<()> {
         proxy,
         accept_invalid_certs: args.accept_invalid_certs,
         accept_invalid_hostnames: args.accept_invalid_hostnames,
+        cookie_store: args.cookie_store,
         file_id: info.file_id.clone(),
         resp: Some(Arc::new(Mutex::new(Some(resp)))),
         available_ips,

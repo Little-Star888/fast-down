@@ -31,6 +31,7 @@ dashmap = "6.2.1"
 dialoguer = "0.12.0"
 fast-down = { version = "5.0.2", path = "../core/crates/fast-down", features = [
   "fast-puller",
+  "cookie-store",
   "file",
   "getifaddrs",
   "reqwest-tls",
@@ -51,6 +52,7 @@ reqwest = { version = "0.13.4", default-features = false, features = [
   "socks",
   "system-proxy",
   "zstd",
+  "cookies",
 ] }
 rusqlite = { version = "0.40.0", features = ["bundled"] }
 rust-i18n = "4.1.0"
